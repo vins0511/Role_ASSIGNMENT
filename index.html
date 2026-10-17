@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>우리 반 1인 1역할 배정기 🏫</title>
+  <!-- 교실 친화적인 구글 폰트 (주아체 & 본고딕) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      /* [테마 3] 파스텔 민트 & 코랄 팔레트 */
+      --bg-page: #F3FAF8;
+      --card-bg: #FFFFFF;
+      --mint-primary: #38B29C;
+      --mint-light: #EBF8F5;
+      --mint-border: #B2E5DB;
+      --coral-primary: #FF7666;
+      --coral-hover: #F05D4C;
+      --coral-light: #FFF0EE;
+      --coral-border: #FFC5BE;
+      --text-main: #2D3748;
+      --text-sub: #718096;
+      --pin-gold: #F59E0B;
+      --pin-gold-light: #FEF3C7;
+      --border-soft: #E2E8F0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      padding: 24px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* 캔버스 (꽃가루 시각 효과) */
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 99999;
+    }
+
+    /* 상단 배너 */
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+      position: relative;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .main-title {
+      font-family: 'Jua', sans-serif;
+      font-size: 3rem;
+      color: var(--coral-primary);
+      text-shadow: 2px 3px 0px var(--mint-border);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    p.subtitle {
+      font-size: 1.25rem;
+      color: var(--mint-primary);
+      font-weight: 700;
+    }
+
+    /* 상단 툴바 */
+    .top-toolbar {
+      position: absolute;
+      right: 0;
+      top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .tool-btn {
+      background: white;
+      border: 2px solid var(--mint-border);
+      padding: 10px 16px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-main);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 3px 10px rgba(56, 178, 156, 0.1);
+    }
+
+    .tool-btn:hover {
+      background: var(--mint-light);
+      border-color: var(--mint-primary);
+      transform: translateY(-2px);
+    }
+
+    /* [테마 3] 교실 인쇄용 전용 버튼 스타일 */
+    .btn-print-a4 {
+      background: linear-gradient(135deg, #FFF0EE, #FFFFFF);
+      border: 2px solid var(--coral-primary);
+      color: var(--coral-primary);
+    }
+
+    .btn-print-a4:hover {
+      background: var(--coral-primary);
+      color: white;
+    }
+
+    /* 메인 컨테이너 */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      background: var(--card-bg);
+      border-radius: 28px;
+      padding: 32px;
+      box-shadow: 0 16px 40px rgba(56, 178, 156, 0.08);
+      border: 3px solid var(--mint-light);
+    }
+
+    /* 2분할 입력창 그리드 */
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+
+    .input-card {
+      background-color: var(--mint-light);
+      border: 2.5px dashed var(--mint-border);
+      border-radius: 20px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .input-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .input-title {
+      font-family: 'Jua', sans-serif;
+      font-size: 1.55rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .count-badge {
+      background-color: var(--mint-primary);
+      color: white;
+      font-size: 1rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 20px;
+      box-shadow: 0 2px 6px rgba(56, 178, 156, 0.3);
+    }
+
+    textarea {
+      width: 100%;
+      height: 180px;
+      border: 2px solid #CBD5E1;
+      border-radius: 14px;
+      padding: 14px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 1.15rem;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    textarea:focus {
+      border-color: var(--mint-primary);
+      box-shadow: 0 0 0 3px rgba(56, 178, 156, 0.2);
+      background-color: #FFFFFF;
+    }
+
+    /* [기능 2] 사전 고정 핀 (Pinning) 섹션 */
+    .pin-section {
+      background: var(--coral-light);
+      border: 2px solid var(--coral-border);
+      border-radius: 18px;
+      padding: 18px 24px;
+      margin-bottom: 28px;
+    }
+
+    .pin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pin-title {
+      font-family: 'Jua', sans-serif;
+      font-size: 1.35rem;
+      color: var(--coral-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pin-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pin-select {
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 2px solid var(--coral-border);
+      background: white;
+      color: var(--text-main);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .pin-select:focus {
+      border-color: var(--coral-primary);
+    }
+
+    .btn-pin-add {
+      background-color: var(--coral-primary);
+      color: white;
+      border: none;
+      font-family: 'Jua', sans-serif;
+      font-size: 1.1rem;
+      padding: 8px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-pin-add:hover {
+      background-color: var(--coral-hover);
+    }
+
+    .pinned-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      min-height: 38px;
+      align-items: center;
+    }
+
+    .pinned-chip {
+      background: white;
+      border: 1.5px solid var(--coral-primary);
+      padding: 6px 14px;
+      border-radius: 50px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: 0 2px 6px rgba(255, 118, 102, 0.15);
+      animation: popIn 0.25s ease-out;
+    }
+
+    .pinned-chip .pin-icon {
+      color: var(--pin-gold);
+    }
+
+    .pinned-chip .btn-remove-pin {
+      cursor: pointer;
+      color: #A0AEC0;
+      font-weight: 900;
+      font-size: 1.1rem;
+      border: none;
+      background: none;
+      margin-left: 2px;
+      transition: color 0.15s;
+    }
+
+    .pinned-chip .btn-remove-pin:hover {
+      color: var(--coral-primary);
+    }
+
+    .no-pin-msg {
+      color: var(--text-sub);
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    /* 중앙 배정 버튼 영역 */
+    .action-area {
+      text-align: center;
+      margin: 10px 0 32px 0;
+    }
+
+    .btn-shuffle {
+      font-family: 'Jua', sans-serif;
+      font-size: 2rem;
+      background: linear-gradient(135deg, var(--coral-primary), #FFA094);
+      color: white;
+      border: none;
+      padding: 18px 56px;
+      border-radius: 60px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(255, 118, 102, 0.4);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      user-select: none;
+    }
+
+    .btn-shuffle:hover:not(:disabled) {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 14px 30px rgba(255, 118, 102, 0.5);
+    }
+
+    .btn-shuffle:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .btn-shuffle:disabled {
+      background: #CBD5E1;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* 결과 영역 */
+    .result-section {
+      border-top: 3px dashed var(--mint-border);
+      padding-top: 32px;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .result-title {
+      font-family: 'Jua', sans-serif;
+      font-size: 2rem;
+      color: var(--text-main);
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 18px;
+    }
+
+    /* 학생-역할 카드 */
+    .match-card {
+      background: #FFFFFF;
+      border-radius: 18px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 2px solid var(--mint-border);
+      box-shadow: 0 6px 16px rgba(56, 178, 156, 0.08);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .match-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 7px;
+      background-color: var(--mint-primary);
+    }
+
+    /* [기능 2] 고정된 카드 하이라이트 */
+    .match-card.is-pinned {
+      border-color: var(--pin-gold);
+      background-color: #FFFDF7;
+    }
+
+    .match-card.is-pinned::before {
+      background-color: var(--pin-gold);
+    }
+
+    .student-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .number-index {
+      font-family: 'Jua', sans-serif;
+      font-size: 1.15rem;
+      color: #94A3B8;
+      min-width: 24px;
+    }
+
+    .student-name {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .arrow-icon {
+      color: var(--mint-border);
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+
+    .role-badge {
+      background-color: var(--coral-light);
+      color: var(--coral-primary);
+      border: 1.5px solid var(--coral-border);
+      font-size: 1.15rem;
+      font-weight: 800;
+      padding: 7px 15px;
+      border-radius: 14px;
+      text-align: right;
+      max-width: 55%;
+      word-break: keep-all;
+      transition: transform 0.08s ease, filter 0.08s ease;
+    }
+
+    /* [기능 1] 슬롯머신 두구두구 롤링 애니메이션 효과 */
+    .rolling-active {
+      animation: slotShake 0.1s infinite alternate;
+      filter: blur(1.2px);
+      background-color: #FFF4D9;
+      color: #D97706;
+      border-color: #FDE68A;
+      transform: scale(1.04);
+    }
+
+    @keyframes slotShake {
+      0% { transform: translateY(-3px) scale(1.02); }
+      100% { transform: translateY(3px) scale(0.98); }
+    }
+
+    .pin-tag {
+      font-size: 0.75rem;
+      background: var(--pin-gold-light);
+      color: #B45309;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 800;
+      margin-left: 4px;
+      vertical-align: middle;
+      border: 1px solid #FCD34D;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--text-sub);
+      font-size: 1.3rem;
+      font-weight: 700;
+      background: var(--mint-light);
+      border-radius: 16px;
+      border: 2px dashed var(--mint-border);
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: translateY(12px) scale(0.95); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* 반응형 화면 */
+    @media (max-width: 860px) {
+      .input-grid {
+        grid-template-columns: 1fr;
+      }
+      .top-toolbar {
+        position: static;
+        margin-top: 14px;
+        justify-content: center;
+      }
+      .main-title {
+        font-size: 2.3rem;
+      }
+      .btn-shuffle {
+        width: 100%;
+        font-size: 1.6rem;
+        padding: 16px;
+        justify-content: center;
+      }
+    }
+
+    /* ============================================================
+       [기능 3] 교실 인쇄용 A4 전용 스타일 (@media print)
+       ============================================================ */
+    .print-only-header {
+      display: none;
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 12mm 15mm;
+      }
+
+      body {
+        background: white !important;
+        color: black !important;
+        padding: 0;
+      }
+
+      /* 불필요한 컨트롤 일체 숨김 */
+      header,
+      .input-grid,
+      .pin-section,
+      .action-area,
+      #confettiCanvas,
+      .tool-btn,
+      .empty-state {
+        display: none !important;
+      }
+
+      .container {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+
+      .result-section {
+        border-top: none !important;
+        padding-top: 0 !important;
+      }
+
+      /* A4 인쇄 전용 헤더 */
+      .print-only-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 20px;
+        border-bottom: 3px double #333;
+        padding-bottom: 12px;
+      }
+
+      .print-only-header h1 {
+        font-family: 'Jua', sans-serif;
+        font-size: 26pt;
+        color: #111;
+        margin-bottom: 8px;
+      }
+
+      .print-info-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13pt;
+        font-weight: 700;
+        color: #444;
+        padding: 0 10px;
+      }
+
+      .result-header {
+        display: none !important;
+      }
+
+      /* A4 용지에 맞춘 깔끔한 2열 그리드 배치 */
+      .results-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+      }
+
+      .match-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+        border: 1.5px solid #666 !important;
+        box-shadow: none !important;
+        padding: 10px 14px !important;
+        border-radius: 8px !important;
+        background: white !important;
+      }
+
+      .match-card::before {
+        width: 5px !important;
+        background-color: #333 !important;
+      }
+
+      .student-name {
+        font-size: 13pt !important;
+        color: black !important;
+      }
+
+      .role-badge {
+        font-size: 11pt !important;
+        color: black !important;
+        background: #F1F5F9 !important;
+        border: 1px solid #94A3B8 !important;
+        padding: 4px 8px !important;
+      }
+
+      .pin-tag {
+        border: 1px solid #666 !important;
+        color: #111 !important;
+        background: #eee !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 꽃가루 캔버스 -->
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- 웹 화면용 헤더 -->
+  <header>
+    <h1 class="main-title">🏫 우리 반 1인 1역할 배정기</h1>
+    <p class="subtitle">모두 함께 책임과 배려로 가꾸는 행복한 우리 교실 ✨</p>
+    <div class="top-toolbar">
+      <button class="tool-btn btn-print-a4" onclick="window.print()" title="교실 게시용 A4 크기로 깔끔하게 출력">
+        🖨️ A4 배정표 인쇄
+      </button>
+      <button class="tool-btn" onclick="toggleFullScreen()" title="TV / 전자칠판 전체 화면">
+        🖥️ 전체화면
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- [기능 3] A4 인쇄 시에만 나타나는 타이틀 및 날짜 헤더 -->
+    <div class="print-only-header">
+      <h1>우리 반 1인 1역할 배정표</h1>
+      <div class="print-info-row">
+        <span>학급: [ &nbsp;&nbsp;&nbsp;&nbsp; ]학년 [ &nbsp;&nbsp;&nbsp;&nbsp; ]반</span>
+        <span id="printDateText">배정일자: 2026년 00월 00일</span>
+      </div>
+    </div>
+
+    <!-- 1. 명단 및 역할 입력 영역 -->
+    <section class="input-grid">
+      <!-- 학생 명단 -->
+      <div class="input-card">
+        <div class="input-header">
+          <label for="studentsInput" class="input-title">👦👧 학생 명단</label>
+          <span class="count-badge" id="studentCount">10명</span>
+        </div>
+        <textarea id="studentsInput" spellcheck="false" placeholder="학생 이름을 줄바꿈(엔터)으로 입력하세요">김민준
+이서아
+박도윤
+최지우
+정하은
+강예준
+조수아
+윤시우
+임채원
+한은우</textarea>
+      </div>
+
+      <!-- 역할 목록 -->
+      <div class="input-card">
+        <div class="input-header">
+          <label for="rolesInput" class="input-title">📋 학급 1인 1역할</label>
+          <span class="count-badge" id="roleCount">10개</span>
+        </div>
+        <textarea id="rolesInput" spellcheck="false" placeholder="역할을 줄바꿈(엔터)으로 입력하세요">칠판 및 분필 지우개 정리
+우유 급식 도우미
+재활용 분리수거 관리
+창문 환기 및 커튼 관리
+학급 도서 및 보드게임 정리
+급식 줄 정리 도우미
+전등 및 냉난방기 끄기
+게시판 및 전달사항 안내
+방송실 및 종소리 알리미
+체육 교구 관리</textarea>
+      </div>
+    </section>
+
+    <!-- [기능 2] 특정 학생 역할 사전 고정 핀 (Pin) 섹션 -->
+    <section class="pin-section">
+      <div class="pin-header">
+        <span class="pin-title">📌 사전 역할 고정 (선택 사항)</span>
+        <div class="pin-controls">
+          <select id="pinStudentSelect" class="pin-select">
+            <option value="">학생 선택</option>
+          </select>
+          <span>에게</span>
+          <select id="pinRoleSelect" class="pin-select">
+            <option value="">역할 선택</option>
+          </select>
+          <button type="button" class="btn-pin-add" id="btnAddPin">+ 핀 고정</button>
+        </div>
+      </div>
+      <div class="pinned-list" id="pinnedListContainer">
+        <span class="no-pin-msg">※ 미리 지정할 학생과 역할이 있다면 선택 후 고정해 두세요. 고정된 학생은 랜덤 추첨에서 제외되고 확정 배정됩니다.</span>
+      </div>
+    </section>
+
+    <!-- 중앙 배정 실행 버튼 -->
+    <div class="action-area">
+      <button class="btn-shuffle" id="btnAssign">
+        <span id="btnIcon">🎲</span>
+        <span id="btnText">역할 랜덤 배정하기</span>
+      </button>
+    </div>
+
+    <!-- 결과 표시 영역 -->
+    <section class="result-section">
+      <div class="result-header">
+        <h2 class="result-title">✨ 최종 역할 배정 결과</h2>
+        <span id="assignSummary" style="font-size: 1.15rem; color: var(--text-sub); font-weight: 700;"></span>
+      </div>
+
+      <div class="results-grid" id="resultsGrid">
+        <div class="empty-state">
+          위의 <strong>[🎲 역할 랜덤 배정하기]</strong> 버튼을 누르면 2초간 두구두구 추첨 후 배정표가 공개됩니다!
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // DOM 요소 캐싱
+    const studentsInput = document.getElementById('studentsInput');
+    const rolesInput = document.getElementById('rolesInput');
+    const studentCountBadge = document.getElementById('studentCount');
+    const roleCountBadge = document.getElementById('roleCount');
+    const pinStudentSelect = document.getElementById('pinStudentSelect');
+    const pinRoleSelect = document.getElementById('pinRoleSelect');
+    const btnAddPin = document.getElementById('btnAddPin');
+    const pinnedListContainer = document.getElementById('pinnedListContainer');
+    const btnAssign = document.getElementById('btnAssign');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnText = document.getElementById('btnText');
+    const resultsGrid = document.getElementById('resultsGrid');
+    const assignSummary = document.getElementById('assignSummary');
+    const printDateText = document.getElementById('printDateText');
+
+    // 사전 고정된 매핑 저장 배열: [{ student: '이름', role: '역할' }]
+    let pinnedPairs = [];
+    let isRolling = false; // 현재 롤링 진행 중 여부
+
+    // 줄바꿈으로 입력된 목록 추출 (공백 제거)
+    function getCleanList(textarea) {
+      return textarea.value
+        .split('\n')
+        .map(v => v.trim())
+        .filter(v => v.length > 0);
+    }
+
+    // 학생 및 역할 수 갱신 & 셀렉트박스 동기화
+    function updateInputsAndSelects() {
+      const students = getCleanList(studentsInput);
+      const roles = getCleanList(rolesInput);
+
+      studentCountBadge.textContent = `${students.length}명`;
+      roleCountBadge.textContent = `${roles.length}개`;
+
+      // 핀 셀렉트박스 갱신
+      updateSelectOptions(pinStudentSelect, students, '학생 선택');
+      updateSelectOptions(pinRoleSelect, roles, '역할 선택');
+
+      // 텍스트 영역에서 사라진 학생이나 역할이 핀에 남아있다면 정리
+      pinnedPairs = pinnedPairs.filter(p => students.includes(p.student) && roles.includes(p.role));
+      renderPinnedChips();
+
+      // 로컬 스토리지 자동 저장
+      localStorage.setItem('role_students_data', studentsInput.value);
+      localStorage.setItem('role_roles_data', rolesInput.value);
+      localStorage.setItem('role_pinned_data', JSON.stringify(pinnedPairs));
+    }
+
+    function updateSelectOptions(selectEl, items, defaultLabel) {
+      const currentVal = selectEl.value;
+      selectEl.innerHTML = `<option value="">${defaultLabel}</option>`;
+      items.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item;
+        opt.textContent = item;
+        selectEl.appendChild(opt);
+      });
+      if (items.includes(currentVal)) {
+        selectEl.value = currentVal;
+      }
+    }
+
+    // [기능 2] 핀 추가 버튼 클릭
+    btnAddPin.addEventListener('click', () => {
+      const selectedStudent = pinStudentSelect.value;
+      const selectedRole = pinRoleSelect.value;
+
+      if (!selectedStudent || !selectedRole) {
+        alert('고정할 학생과 역할을 모두 선택해 주세요!');
+        return;
+      }
+
+      // 이미 고정된 학생 또는 역할인지 검사
+      if (pinnedPairs.some(p => p.student === selectedStudent)) {
+        alert(`'${selectedStudent}' 학생은 이미 다른 역할에 고정되어 있습니다.`);
+        return;
+      }
+      if (pinnedPairs.some(p => p.role === selectedRole)) {
+        alert(`'${selectedRole}' 역할은 이미 다른 학생에게 고정되어 있습니다.`);
+        return;
+      }
+
+      pinnedPairs.push({ student: selectedStudent, role: selectedRole });
+      pinStudentSelect.value = '';
+      pinRoleSelect.value = '';
+      renderPinnedChips();
+      localStorage.setItem('role_pinned_data', JSON.stringify(pinnedPairs));
+    });
+
+    // 핀 칩 렌더링
+    function renderPinnedChips() {
+      pinnedListContainer.innerHTML = '';
+      if (pinnedPairs.length === 0) {
+        pinnedListContainer.innerHTML = '<span class="no-pin-msg">※ 미리 지정할 학생과 역할이 있다면 선택 후 고정해 두세요. 고정된 학생은 랜덤 추첨에서 제외되고 확정 배정됩니다.</span>';
+        return;
+      }
+
+      pinnedPairs.forEach((pair, index) => {
+        const chip = document.createElement('div');
+        chip.className = 'pinned-chip';
+        chip.innerHTML = `
+          <span class="pin-icon">📌</span>
+          <span><strong>${escapeHtml(pair.student)}</strong> ➔ ${escapeHtml(pair.role)}</span>
+          <button type="button" class="btn-remove-pin" title="고정 해제" onclick="removePin(${index})">&times;</button>
+        `;
+        pinnedListContainer.appendChild(chip);
+      });
+    }
+
+    window.removePin = function(index) {
+      pinnedPairs.splice(index, 1);
+      renderPinnedChips();
+      localStorage.setItem('role_pinned_data', JSON.stringify(pinnedPairs));
+    };
+
+    // Fisher-Yates 셔플 알고리즘
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // [기능 1 & 기능 4] 배정 실행 (2초 슬롯머신 두구두구 롤링 + 꽃가루)
+    btnAssign.addEventListener('click', () => {
+      if (isRolling) return;
+
+      const allStudents = getCleanList(studentsInput);
+      const allRoles = getCleanList(rolesInput);
+
+      if (allStudents.length === 0) {
+        alert('학생 명단을 입력해 주세요!');
+        studentsInput.focus();
+        return;
+      }
+      if (allRoles.length === 0) {
+        alert('학급 역할을 입력해 주세요!');
+        rolesInput.focus();
+        return;
+      }
+
+      // 고정된 목록 분리
+      const pinnedStudents = pinnedPairs.map(p => p.student);
+      const pinnedRoles = pinnedPairs.map(p => p.role);
+
+      // 나머지 학생과 역할 분리
+      const remainingStudents = allStudents.filter(s => !pinnedStudents.includes(s));
+      const remainingRoles = allRoles.filter(r => !pinnedRoles.includes(r));
+
+      // 무작위 셔플
+      const shuffledStudents = shuffleArray(remainingStudents);
+      const shuffledRoles = shuffleArray(remainingRoles);
+
+      // 최종 전체 매칭 구성
+      const finalMatches = [];
+
+      // 1. 고정된 학생 먼저 추가
+      pinnedPairs.forEach(p => {
+        finalMatches.push({ student: p.student, role: p.role, isPinned: true });
+      });
+
+      // 2. 나머지 학생 1:1 매칭 추가
+      shuffledStudents.forEach((student, idx) => {
+        const assignedRole = shuffledRoles[idx] || '자율 도우미 (특별 지원)';
+        finalMatches.push({ student, role: assignedRole, isPinned: false });
+      });
+
+      // 학생 명단 입력 순서와 유사하게 정렬(옵션)하거나 깔끔하게 배치
+      startSlotMachineEffect(finalMatches, allRoles);
+    });
+
+    // 2초 두구두구 슬롯머신 롤링 효과
+    function startSlotMachineEffect(finalMatches, allRoles) {
+      isRolling = true;
+      btnAssign.disabled = true;
+      btnIcon.textContent = '⏳';
+      btnText.textContent = '두구두구... 섞는 중!';
+      assignSummary.textContent = '교실 역할을 공정하게 섞고 있습니다...';
+
+      // 1. 카드 뼈대 먼저 생성
+      resultsGrid.innerHTML = '';
+      finalMatches.forEach((match, index) => {
+        const card = document.createElement('div');
+        card.className = `match-card ${match.isPinned ? 'is-pinned' : ''}`;
+        card.id = `match-card-${index}`;
+
+        card.innerHTML = `
+          <div class="student-badge">
+            <span class="number-index">${index + 1}</span>
+            <span class="student-name">${escapeHtml(match.student)}</span>
+            ${match.isPinned ? '<span class="pin-tag">📌 고정</span>' : ''}
+          </div>
+          <span class="arrow-icon">➔</span>
+          <div class="role-badge ${match.isPinned ? '' : 'rolling-active'}" id="role-text-${index}">
+            ${match.isPinned ? escapeHtml(match.role) : '두구두구...'}
+          </div>
+        `;
+        resultsGrid.appendChild(card);
+      });
+
+      // 배정표 영역으로 스크롤 이동
+      resultsGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // 2. 2초 동안 70ms마다 무작위 역할 글씨를 롤링 교체
+      const startTime = Date.now();
+      const rollingDuration = 2000; // 2초
+
+      const rollInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+
+        finalMatches.forEach((match, index) => {
+          if (!match.isPinned) {
+            const roleEl = document.getElementById(`role-text-${index}`);
+            if (roleEl) {
+              const randomSample = allRoles[Math.floor(Math.random() * allRoles.length)];
+              roleEl.textContent = randomSample;
+            }
+          }
+        });
+
+        // 2초 경과 후 종료 및 최종 결과 고정
+        if (elapsed >= rollingDuration) {
+          clearInterval(rollInterval);
+          finishAssignment(finalMatches);
+        }
+      }, 70);
+    }
+
+    // 최종 완료 처리
+    function finishAssignment(finalMatches) {
+      finalMatches.forEach((match, index) => {
+        const roleEl = document.getElementById(`role-text-${index}`);
+        if (roleEl) {
+          roleEl.classList.remove('rolling-active');
+          roleEl.textContent = match.role;
+          roleEl.style.animation = 'popIn 0.3s ease-out';
+        }
+      });
+
+      isRolling = false;
+      btnAssign.disabled = false;
+      btnIcon.textContent = '🎲';
+      btnText.textContent = '역할 다시 배정하기';
+
+      const pinnedCount = finalMatches.filter(m => m.isPinned).length;
+      assignSummary.textContent = `총 ${finalMatches.length}명 배정 완료! (📌 고정: ${pinnedCount}명 / 🎲 랜덤: ${finalMatches.length - pinnedCount}명) 🎉`;
+
+      // [기능 4] 만발하는 꽃가루(Confetti) 폭죽 발사!
+      fireConfetti();
+    }
+
+    // [기능 3] A4 인쇄 날짜 자동 세팅
+    function updatePrintDate() {
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = String(today.getMonth() + 1).padStart(2, '0');
+      const d = String(today.getDate()).padStart(2, '0');
+      printDateText.textContent = `배정일자: ${y}년 ${m}월 ${d}일`;
+    }
+    updatePrintDate();
+
+    // HTML 태그 이스케이프
+    function escapeHtml(string) {
+      return String(string)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // 전체화면 토글
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          alert(`전체화면 오류: ${err.message}`);
+        });
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // ============================================================
+    // [기능 4] 화면 가득 흩날리는 풍성한 꽃가루(Confetti) 시스템
+    // ============================================================
+    const canvas = document.getElementById('confettiCanvas');
+    const ctx = canvas.getContext('2d');
+    let confettiParticles = [];
+    let confettiAnimationId = null;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function fireConfetti() {
+      // 캔버스 초기화 및 120개의 다채로운 파스텔 입자 생성
+      cancelAnimationFrame(confettiAnimationId);
+      confettiParticles = [];
+      const colors = ['#38B29C', '#FF7666', '#FFD166', '#4ECDC4', '#FF9F80', '#A0E4D0', '#FFAAA6'];
+
+      for (let i = 0; i < 120; i++) {
+        confettiParticles.push({
+          x: canvas.width * 0.5 + (Math.random() - 0.5) * 300,
+          y: canvas.height * 0.45,
+          w: Math.random() * 12 + 6,
+          h: Math.random() * 8 + 5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: (Math.random() - 0.5) * 26,
+          vy: (Math.random() - 0.85) * 24,
+          rot: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 12,
+          gravity: 0.38,
+          drag: 0.985,
+          opacity: 1
+        });
+      }
+      animateConfetti();
+    }
+
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      confettiParticles.forEach((p, idx) => {
+        p.vx *= p.drag;
+        p.vy *= p.drag;
+        p.vy += p.gravity;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.vRot;
+        p.opacity -= 0.009;
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(p.opacity, 0);
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rot * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+
+        if (p.opacity <= 0 || p.y > canvas.height + 50) {
+          confettiParticles.splice(idx, 1);
+        }
+      });
+
+      if (confettiParticles.length > 0) {
+        confettiAnimationId = requestAnimationFrame(animateConfetti);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    // 입력창 이벤트 리스너 등록
+    studentsInput.addEventListener('input', updateInputsAndSelects);
+    rolesInput.addEventListener('input', updateInputsAndSelects);
+
+    // 페이지 첫 로드시 저장 데이터 복원
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedStudents = localStorage.getItem('role_students_data');
+      const savedRoles = localStorage.getItem('role_roles_data');
+      const savedPinned = localStorage.getItem('role_pinned_data');
+
+      if (savedStudents) studentsInput.value = savedStudents;
+      if (savedRoles) rolesInput.value = savedRoles;
+      if (savedPinned) {
+        try {
+          pinnedPairs = JSON.parse(savedPinned);
+        } catch (e) {
+          pinnedPairs = [];
+        }
+      }
+
+      updateInputsAndSelects();
+    });
+  </script>
+</body>
+</html>
